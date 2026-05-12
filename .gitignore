@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Environment variables — NEVER commit this
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# OS Files
+.DS_Store
+
+# Build output
+dist/
+
+# Scratch / temp files
+scratch/
