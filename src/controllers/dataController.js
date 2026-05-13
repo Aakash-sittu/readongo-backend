@@ -4,7 +4,6 @@ import { rssService } from '../services/rssService.js';
 import * as aggregatorService from '../services/aggregatorService.js';
 import { aiService } from '../services/aiService.js';
 import { newsDbService } from '../services/newsDbService.js';
-import { cacheService } from '../services/cacheService.js';
 import { queueService } from '../services/queueService.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 
@@ -85,9 +84,9 @@ export const dataController = {
       const news = await aggregatorService.fetchAllNews();
       const processedNews = await aiService.processInBatches(news, 50);
       await newsDbService.saveNewsItems(processedNews);
-      
-      // Update cache manually after background job finishes
-      cacheService.set(cacheService.KEYS.LATEST_NEWS, processedNews);
+
+      // Refresh cache from DB so ordering is always created_at DESC
+      await newsDbService.refreshCache();
     });
 
     res.status(202).json({

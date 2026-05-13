@@ -18,8 +18,13 @@ export const newsDbService = {
       new Map(newsItems.map(item => [item.url, item])).values()
     );
 
+    // Filter out items missing required fields to avoid DB constraint violations
+    const validNews = uniqueNews.filter(item => item.url && item.title);
+
+    if (validNews.length === 0) return;
+
     // Map fields to match database schema
-    const rows = uniqueNews.map(item => ({
+    const rows = validNews.map(item => ({
       title: item.title,
       url: item.url,
       summary: item.summary || null,
@@ -51,6 +56,16 @@ export const newsDbService = {
     if (cachedData) return cachedData;
 
     // 2. Cache miss - fetch from DB
+    return this.refreshCache(limit);
+  },
+
+  /**
+   * Always fetches fresh data from DB and updates the cache.
+   * Used after a job completes to ensure the cache reflects the latest saved batch.
+   * @param {number} limit - Number of items to fetch.
+   * @returns {Promise<Array>}
+   */
+  async refreshCache(limit = 100) {
     const { data, error } = await supabase
       .from('news_items')
       .select('*')
@@ -58,13 +73,12 @@ export const newsDbService = {
       .limit(limit);
 
     if (error) {
-      logger.error(`Error fetching news from Supabase: ${error.message}`);
+      logger.error(`Error refreshing cache from Supabase: ${error.message}`);
       return [];
     }
 
-    // 3. Store in cache for next time
     cacheService.set(cacheService.KEYS.LATEST_NEWS, data);
-
+    logger.info(`Cache refreshed with ${data.length} items from DB.`);
     return data;
   },
 

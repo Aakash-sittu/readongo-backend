@@ -38,7 +38,8 @@ export async function fetchAllNews() {
   const flattened = results
     .filter(res => res.status === 'fulfilled')
     .map(res => res.value)
-    .flat();
+    .flat()
+    .filter(item => item && item.url && item.title); // Drop items with no URL or title
 
   // Deduplicate by URL
   const uniqueNews = Array.from(

@@ -52,8 +52,8 @@ export const cronService = {
     // 3. Save to Supabase
     await newsDbService.saveNewsItems(processedNews);
 
-    // 4. Proactive Cache Refresh
-    // We update the cache immediately so the very next request is a sub-5ms Cache Hit.
-    cacheService.set(cacheService.KEYS.LATEST_NEWS, processedNews);
+    // 4. Proactive Cache Refresh from DB
+    // Fetch fresh data from DB so cache reflects correct created_at ordering.
+    await newsDbService.refreshCache();
   }
 };
