@@ -6,6 +6,10 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
+// Trust the first proxy (Google Cloud Run's load balancer)
+// Required for express-rate-limit to correctly read the real client IP
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors());
 app.use(morgan('dev'));
