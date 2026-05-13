@@ -14,9 +14,9 @@ export const cronService = {
    * Initializes all scheduled jobs.
    */
   init() {
-    // Schedule: Every 6 hours (0 */6 * * *)
-    // We run it at minute 0 of every 6th hour.
-    cron.schedule('0 */6 * * *', async () => {
+    // Schedule: Once daily at 8:00 AM UTC (1:30 PM IST)
+    // On Cloud Run this is replaced by Google Cloud Scheduler hitting /api/admin/trigger-job
+    cron.schedule('0 8 * * *', async () => {
       logger.info('Cron triggered: Adding summarization job to queue.');
       
       await queueService.enqueue('Scheduled Aggregation', async () => {
